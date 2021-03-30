@@ -135,10 +135,7 @@ public class RedirectHelper {
     public String getRedirectDomain(HttpHeaders httpHeaders) {
         // This is the failsafe for when nothing could be identified
         String redirectOrigin = DEFAULT_REDIRECT_ORIGIN;
-        log.debug("headers in getRedirectDomain headers", httpHeaders);
-        log.debug("headers in getRedirectDomain referer", httpHeaders.getFirst(Security.REFERER_HEADER));
-        log.debug("headers in getRedirectDomain host", httpHeaders.getHost());
-        log.debug("headers in getRedirectDomain DEFAULT_REDIRECT_ORIGIN", DEFAULT_REDIRECT_ORIGIN);
+        
         if (!StringUtils.isEmpty(httpHeaders.getOrigin())) {
             // For PUT/POST requests or CORS?
             redirectOrigin = httpHeaders.getOrigin();
@@ -157,7 +154,6 @@ public class RedirectHelper {
             String port = httpHeaders.getHost().getPort() != 80 ? ":" + httpHeaders.getHost().getPort() : "";
             redirectOrigin = httpHeaders.getHost().getHostName() + port;
         }
-        log.debug("headers in getRedirectDomain redirectOrigin", redirectOrigin);
         return redirectOrigin;
     }
 

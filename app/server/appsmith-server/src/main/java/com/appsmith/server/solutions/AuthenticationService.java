@@ -30,6 +30,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
+import com.appsmith.server.constants.Security;
 
 import java.time.Instant;
 import java.util.Map;
@@ -63,12 +64,17 @@ public class AuthenticationService {
     public Mono<String> getAuthorizationCodeURL(String datasourceId, String pageId, ServerHttpRequest httpRequest) {
         // This is the only database access that is controlled by ACL
         // The rest of the queries in this flow will not have context information
+        log.info("headers in getRedirectDomain headers", httpRequest.getHeaders());
+        log.info("headers in getRedirectDomain referer", httpRequest.getHeaders().getFirst(Security.REFERER_HEADER));
+        log.info("headers in getRedirectDomain host", httpRequest.getHeaders().getHost());
         return datasourceService.findById(datasourceId, AclPermission.MANAGE_DATASOURCES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFields)
                 .flatMap((datasource -> {
                     OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
                     final String redirectUri = redirectHelper.getRedirectDomain(httpRequest.getHeaders());
+                    log.debug("headers in getRedirectDomain redirectUri", redirectUri);
+                    
                     // Adding basic uri components
                     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
                             .fromUriString(oAuth2.getAuthorizationUrl())
